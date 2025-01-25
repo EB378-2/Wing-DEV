@@ -195,10 +195,6 @@ const ResourceBookingCal: React.FC<CalProps> = ({ currentUser }) => {
           height="auto"
         />
       </div>
-
-
-
-
       <div className="hidden sm:block mx-2 text-black bg-white rounded p-4 h-full">
         <FullCalendar
           timeZone="local"
