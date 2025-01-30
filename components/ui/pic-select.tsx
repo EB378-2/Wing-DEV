@@ -1,27 +1,33 @@
 import React, { useEffect, useState } from "react";
-import { getResources } from "@/app/actions";
+import { getLogs } from "@/app/actions";
 
-interface RescoucesOption {
+interface ResourcesOption {
   id: number;
   name: string;
 }
 
-const Select: React.FC<{ name: string; value: string; onChange: (event: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => void; }> = ({ name, value, onChange }) => {
-  const [options, setOptions] = useState<RescoucesOption[]>([]);
+const PicSelect: React.FC<{ name: string; value: string; onChange: (event: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => void; }> = ({ name, value, onChange }) => {
+  const [options, setOptions] = useState<ResourcesOption[]>([]);
   const [customOption, setCustomOption] = useState("");
   const [isCustom, setIsCustom] = useState(false);
 
   useEffect(() => {
-    const fetchRescouces = async () => {
+    const fetchResources = async () => {
       try {
-        const rescouces = await getResources();
-        console.log("Retivala ooff rescouces:", rescouces)
-        setOptions([...rescouces.map((ac: any) => ({ id: ac.resource_id, name: ac.resource })), { id: -1, name: "Other" }]);
+        const logs = await getLogs();
+        console.log("Retrieval of logs:", logs);
+        
+        // Remove duplicates by converting to a Map and back to an array
+        const uniqueOptions = Array.from(
+          new Map(logs.map((ac: any) => [ac.pic, { id: ac.id, name: ac.pic }])).values()
+        );
+        
+        setOptions([...uniqueOptions, { id: -1, name: "Other" }]);
       } catch (error) {
-        console.error("Error fetching rescouces:", error);
+        console.error("Error fetching logs:", error);
       }
     };
-    fetchRescouces();
+    fetchResources();
   }, []);
 
   return (
@@ -60,4 +66,4 @@ const Select: React.FC<{ name: string; value: string; onChange: (event: React.Ch
   );
 };
 
-export default Select;
+export default PicSelect;
