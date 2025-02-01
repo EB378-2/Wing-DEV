@@ -72,7 +72,8 @@
     "country": "Country",
     "role": "Role",
     "qualifications": "Qualifications",
-    "save": "Save"
+    "save": "Save",
+    "Total Hours on Plane": "Total Hours on Plane"
   },
   "Logbook": {
     "logbook": "Logbook",

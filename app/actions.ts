@@ -636,15 +636,15 @@ export const getProfileTotals = async () => {
 
 
   let query = supabase.from("profiles").select("*").eq("id", user?.id);
-  const { data: profileTotals, error } = await query;
-  console.log("resources", profileTotals);
+  const { data: profile_totals, error } = await query;
+  console.log("profile_totals:", profile_totals);
 
   if (error) {
-    console.error("Error fetching resources:", error);
-    throw new Error("Failed to fetch resources");
+    console.error("Error fetching profile_totals:", error);
+    throw new Error("Failed to fetch profile_totals");
   }
 
   
-  return profileTotals; 
-
+  return profile_totals; 
+ 
 }
