@@ -15,6 +15,7 @@ export default function Home() {
     try {
       const resp = await fetch(`/api/route-weather?dep=${dep}&arr=${arr}`);
       const data = await resp.json();
+      console.log('Weather data:', data);
       setWeather(data);
     } catch (err) {
       console.error('Error fetching weather:', err);
@@ -52,7 +53,19 @@ export default function Home() {
           <List>
             {Object.entries(weather.departure_arrival_weather || {}).map(([station, report]: any) => (
               <ListItem key={station}>
-                <ListItemText primary={`${station}: ${report.raw}`} />
+                <ListItemText
+                  primary={`${station}${report.isFallback ? ` (using nearest: ${report.station || station})` : ''}: ${report.raw}`}
+                />
+              </ListItem>
+            ))}
+          </List>
+
+          <List>
+            {Object.entries(weather.route_weather || {}).map(([station, report]: any) => (
+              <ListItem key={station}>
+                <ListItemText
+                  primary={`${station}${report.isFallback ? ` (using nearest: ${report.station || station})` : ''}: ${report.raw}`}
+                />
               </ListItem>
             ))}
           </List>
