@@ -1,26 +1,174 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Box, Container, Typography, TextField, Button, Paper, List, ListItem, ListItemText } from '@mui/material';
+import { 
+  Box, 
+  Container, 
+  Typography, 
+  TextField, 
+  Button, 
+  Paper, 
+  List, 
+  ListItem, 
+  ListItemText,
+  Collapse,
+  IconButton,
+  Divider,
+  Chip,
+  CircularProgress
+} from '@mui/material';
+import { ExpandMore, ExpandLess } from '@mui/icons-material';
 
 export default function Home() {
   const [dep, setDep] = useState('');
   const [arr, setArr] = useState('');
-  const [weather, setWeather] = useState<any>(null);
+  const [metar, setMetar] = useState<any>(null);
+  const [taf, setTaf] = useState<any>(null);
+  const [airports, setAirports] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [expandedStations, setExpandedStations] = useState<Record<string, boolean>>({});
 
-  const fetchWeather = async () => {
+  const toggleExpand = (station: string) => {
+    setExpandedStations(prev => ({
+      ...prev,
+      [station]: !prev[station]
+    }));
+  };
+
+  const fetchMetar = async () => {
     if (!dep || !arr) return;
     setLoading(true);
     try {
-      const resp = await fetch(`/api/route-weather?dep=${dep}&arr=${arr}`);
+      const resp = await fetch(`/api/avwx/metar?dep=${dep}&arr=${arr}`);
       const data = await resp.json();
-      console.log('Weather data:', data);
-      setWeather(data);
+      setMetar(data);
     } catch (err) {
-      console.error('Error fetching weather:', err);
+      console.error('Error fetching metar:', err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
+  };
+
+  const fetchTaf = async () => {
+    if (!dep || !arr) return;
+    setLoading(true);
+    try {
+      const resp = await fetch(`/api/avwx/taf?dep=${dep}&arr=${arr}`);
+      const data = await resp.json();
+      setTaf(data);
+    } catch (err) {
+      console.error('Error fetching taf:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAirport = async () => {
+    if (!dep || !arr) return;
+    setLoading(true);
+    try {
+      const resp = await fetch(`/api/openAip?dep=${dep}&arr=${arr}`);
+      const data = await resp.json();
+      setAirports(data);
+    } catch (err) {
+      console.error('Error fetching airport:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFetch = async () => {
+    await Promise.all([fetchMetar(), fetchTaf(), fetchAirport()]);
+  };
+
+  const renderTafForecast = (forecast: any[] | undefined) => {
+    if (!forecast || !Array.isArray(forecast)) {
+      return (
+        <Typography variant="body2" color="text.secondary">
+          No forecast data available
+        </Typography>
+      );
+    }
+
+    return forecast.map((period, idx) => {
+      // Safely access nested properties with optional chaining and null checks
+      const startTime = period?.start_time?.repr || 'Unknown start';
+      const endTime = period?.end_time?.repr || 'Unknown end';
+      const windDir = period?.wind_direction?.value ?? '---';
+      const windSpeed = period?.wind_speed?.value ?? '---';
+      const windGust = period?.wind_gust?.value;
+      const visibility = period?.visibility?.repr || 'Unknown';
+      const flightRules = period?.flight_rules || 'Unknown';
+      const clouds = period?.clouds || [];
+      const wxCodes = period?.wx_codes || [];
+      const summary = period?.summary || 'No summary available';
+
+      return (
+        <Box key={idx} sx={{ mb: 2, p: 1, bgcolor: 'background.paper', borderRadius: 1 }}>
+          <Typography variant="subtitle2">
+            {startTime} - {endTime}
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1 }}>
+            <Chip 
+              label={`Wind: ${windDir}° at ${windSpeed}kt`} 
+              size="small" 
+              color="primary" 
+            />
+            {windGust && (
+              <Chip 
+                label={`Gust: ${windGust}kt`} 
+                size="small" 
+                color="secondary" 
+              />
+            )}
+            <Chip 
+              label={`Visibility: ${visibility}`} 
+              size="small" 
+            />
+            <Chip 
+              label={`Flight Rules: ${flightRules}`} 
+              size="small" 
+              color={
+                flightRules === 'VFR' ? 'success' :
+                flightRules === 'MVFR' ? 'info' :
+                flightRules === 'IFR' ? 'warning' : 'default'
+              }
+            />
+          </Box>
+          {clouds.length > 0 && (
+            <Box sx={{ mb: 1 }}>
+              <Typography variant="caption">Clouds:</Typography>
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                {clouds.map((cloud: any, i: number) => (
+                  <Chip 
+                    key={i}
+                    label={`${cloud.type || 'Cloud'} at ${cloud.altitude || '???'}ft`} 
+                    size="small" 
+                  />
+                ))}
+              </Box>
+            </Box>
+          )}
+          {wxCodes.length > 0 && (
+            <Box sx={{ mb: 1 }}>
+              <Typography variant="caption">Weather:</Typography>
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                {wxCodes.map((wx: any, i: number) => (
+                  <Chip 
+                    key={i}
+                    label={wx.value || 'Weather'} 
+                    size="small" 
+                  />
+                ))}
+              </Box>
+            </Box>
+          )}
+          <Typography variant="body2" color="text.secondary">
+            {summary}
+          </Typography>
+        </Box>
+      );
+    });
   };
 
   return (
@@ -30,52 +178,166 @@ export default function Home() {
       </Typography>
 
       <Paper sx={{ p: 3, mb: 4 }}>
-        <Box display="flex" gap={2} flexWrap="wrap">
+        <Box display="flex" gap={2} flexWrap="wrap" alignItems="center">
           <TextField
             label="Departure ICAO"
             value={dep}
             onChange={(e) => setDep(e.target.value.toUpperCase())}
+            size="small"
           />
           <TextField
             label="Arrival ICAO"
             value={arr}
             onChange={(e) => setArr(e.target.value.toUpperCase())}
+            size="small"
           />
-          <Button variant="contained" onClick={fetchWeather} disabled={loading}>
-            {loading ? 'Loading...' : 'Get Weather'}
+          <Button 
+            variant="contained" 
+            onClick={handleFetch} 
+            disabled={loading}
+            sx={{ minWidth: 180, height: 40 }}
+          >
+            {loading ? <CircularProgress size={24} /> : 'Get Weather Data'}
           </Button>
         </Box>
       </Paper>
 
-      {weather && (
+      {loading && (
+        <Box display="flex" justifyContent="center" my={4}>
+          <CircularProgress />
+        </Box>
+      )}
+
+      {!loading && metar && taf && (
         <Box>
-          <Typography variant="h5" gutterBottom>Departure & Arrival METARs</Typography>
+          {/* Departure & Arrival Section */}
+          <Typography variant="h5" gutterBottom>Departure & Arrival</Typography>
+          
+          <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>METAR</Typography>
           <List>
-            {Object.entries(weather.departure_arrival_weather || {}).map(([station, report]: any) => (
-              <ListItem key={station}>
+            {Object.entries(metar.departure_arrival_weather || {}).map(([station, report]: any) => (
+              <ListItem key={`metar-${station}`} sx={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                  <Typography fontWeight="bold">
+                    {station}{report?.isFallback ? ` (using nearest: ${report.station || station})` : ''}
+                  </Typography>
+                  <Box sx={{ flexGrow: 1 }} />
+                  <Typography variant="body2" color="text.secondary">
+                    {new Date().toLocaleTimeString()}
+                  </Typography>
+                </Box>
+                <Typography variant="body1" sx={{ mt: 1 }}>
+                  {report?.raw || 'No METAR data available'}
+                </Typography>
+              </ListItem>
+            ))}
+          </List>
+
+          <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>TAF</Typography>
+          <List>
+            {Object.entries(taf.departure_arrival_weather || {}).map(([station, report]: any) => (
+              <React.Fragment key={`taf-${station}`}>
+                <ListItem 
+                  sx={{ 
+                    flexDirection: 'column', 
+                    alignItems: 'flex-start',
+                    bgcolor: expandedStations[station] ? 'action.hover' : 'inherit'
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                    <Typography fontWeight="bold">
+                      {station}{report?.isFallback ? ` (using nearest: ${report.station || station})` : ''}
+                    </Typography>
+                    <Box sx={{ flexGrow: 1 }} />
+                    {report?.forecast && (
+                      <IconButton 
+                        size="small" 
+                        onClick={() => toggleExpand(station)}
+                        aria-label="Toggle forecast details"
+                      >
+                        {expandedStations[station] ? <ExpandLess /> : <ExpandMore />}
+                      </IconButton>
+                    )}
+                  </Box>
+                  <Typography variant="body1" sx={{ mt: 1 }}>
+                    {report?.raw || 'No TAF data available'}
+                  </Typography>
+                </ListItem>
+                {report?.forecast && (
+                  <Collapse in={expandedStations[station]} timeout="auto" unmountOnExit>
+                    <Box sx={{ pl: 4, pr: 2, py: 2 }}>
+                      {renderTafForecast(report.forecast)}
+                    </Box>
+                  </Collapse>
+                )}
+                <Divider />
+              </React.Fragment>
+            ))}
+          </List>
+
+          {/* Enroute Weather Section */}
+          <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>Enroute Weather</Typography>
+          
+          <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>METAR</Typography>
+          <List>
+            {metar.route_weather?.map((point: any, index: number) => (
+              <ListItem key={`enroute-metar-${index}`}>
                 <ListItemText
-                  primary={`${station}${report.isFallback ? ` (using nearest: ${report.station || station})` : ''}: ${report.raw}`}
+                  primary={
+                    point?.error 
+                      ? `Point ${index + 1} (${point.lat?.toFixed(2) || '??'}, ${point.lon?.toFixed(2) || '??'}): ${point.error}`
+                      : `Point ${index + 1} (${point.lat?.toFixed(2) || '??'}, ${point.lon?.toFixed(2) || '??'}): ${point.station || 'Unknown'} - ${point.metar || 'No METAR data'}`
+                  }
+                  secondary={point?.error ? undefined : `Flight Rules: ${point.flight_rules || 'Unknown'}`}
                 />
               </ListItem>
             ))}
           </List>
 
+          <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>TAF</Typography>
           <List>
-            {Object.entries(weather.route_weather || {}).map(([station, report]: any) => (
-              <ListItem key={station}>
-                <ListItemText
-                  primary={`${station}${report.isFallback ? ` (using nearest: ${report.station || station})` : ''}: ${report.raw}`}
-                />
-              </ListItem>
-            ))}
-          </List>
-
-          <Typography variant="h5" gutterBottom sx={{ mt: 3 }}>Enroute Weather</Typography>
-          <List>
-            {Object.entries(weather.route_weather || {}).map(([station, report]: any) => (
-              <ListItem key={station}>
-                <ListItemText primary={`${station}: ${report.raw}`} />
-              </ListItem>
+            {taf.route_weather?.map((point: any, index: number) => (
+              <React.Fragment key={`enroute-taf-${index}`}>
+                <ListItem 
+                  sx={{ 
+                    flexDirection: 'column', 
+                    alignItems: 'flex-start',
+                    bgcolor: expandedStations[`enroute-${index}`] ? 'action.hover' : 'inherit'
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                    <ListItemText
+                      primary={
+                        point?.error 
+                          ? `Point ${index + 1} (${point.lat?.toFixed(2) || '??'}, ${point.lon?.toFixed(2) || '??'}): ${point.error}`
+                          : `Point ${index + 1} (${point.lat?.toFixed(2) || '??'}, ${point.lon?.toFixed(2) || '??'}): ${point.station || 'Unknown'}`
+                      }
+                    />
+                    {!point?.error && point?.taf?.forecast && (
+                      <IconButton 
+                        size="small" 
+                        onClick={() => toggleExpand(`enroute-${index}`)}
+                        aria-label="Toggle forecast details"
+                      >
+                        {expandedStations[`enroute-${index}`] ? <ExpandLess /> : <ExpandMore />}
+                      </IconButton>
+                    )}
+                  </Box>
+                  {!point?.error && point?.taf && (
+                    <Typography variant="body1" sx={{ mt: 1 }}>
+                      {point.taf.raw || 'No TAF data available'}
+                    </Typography>
+                  )}
+                </ListItem>
+                {!point?.error && point?.taf?.forecast && (
+                  <Collapse in={expandedStations[`enroute-${index}`]} timeout="auto" unmountOnExit>
+                    <Box sx={{ pl: 4, pr: 2, py: 2 }}>
+                      {renderTafForecast(point.taf.forecast)}
+                    </Box>
+                  </Collapse>
+                )}
+                <Divider />
+              </React.Fragment>
             ))}
           </List>
         </Box>
