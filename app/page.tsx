@@ -89,9 +89,9 @@ export default function Home() {
     }
   };
 
-  const { notam: arrivalNotams, total: arrTotal, error: arrError } = useAirportNotams(arr);
+  const { notams: arrivalNotams, total: arrTotal, error: arrError } = useAirportNotams(arr);
   console.log("Arrival NOTAMs:", arrivalNotams, arrTotal, arrError);
-  const { notam: departureNotams, total: depTotal, error: depError } = useAirportNotams(dep);
+  const { notams: departureNotams, total: depTotal, error: depError } = useAirportNotams(dep);
   console.log("Departure NOTAMs:", departureNotams, depTotal, depError);
 
   const handleFetch = async () => {
@@ -364,9 +364,9 @@ export default function Home() {
               <CardContent>
                 <Typography variant="h6">Departure NOTAMs ({depTotal})</Typography>
                 {depError && <Typography color="error">Error: {depError}</Typography>}
-                {Array.isArray(departureNotams) && departureNotams.map((n, i) => (
-                  <Box key={i} sx={{ mb: 1, p: 1, bgcolor: "grey.100", borderRadius: 1 }}>
-                    <Typography variant="body2" fontWeight="bold">{n.id}</Typography>
+                {Array.isArray(departureNotams) && departureNotams.map((n) => (
+                  <Box key={n.id} sx={{ mb: 1, p: 1, bgcolor: "grey.100", borderRadius: 1 }}>
+                    <Typography variant="body2" fontWeight="bold">{n.title}</Typography>
                     <Typography variant="caption">{n.description}</Typography>
                   </Box>
                 ))}
