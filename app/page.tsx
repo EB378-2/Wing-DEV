@@ -15,9 +15,21 @@ import {
   IconButton,
   Divider,
   Chip,
-  CircularProgress
+  CircularProgress,
+  Card,
+  CardContent
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
+import { useAirportNotams } from '@/lib/hooks/getAirportNotams';
+
+interface FormattedNOTAM {
+  id: string;
+  title: string;
+  description: string;
+  location: string;
+  effectiveDate: string;
+}
 
 export default function Home() {
   const [dep, setDep] = useState('');
@@ -67,7 +79,7 @@ export default function Home() {
     if (!dep || !arr) return;
     setLoading(true);
     try {
-      const resp = await fetch(`/api/openAip?dep=${dep}&arr=${arr}`);
+      const resp = await fetch(`/api/openAip/airports?dep=${dep}&arr=${arr}`);
       const data = await resp.json();
       setAirports(data);
     } catch (err) {
@@ -76,6 +88,11 @@ export default function Home() {
       setLoading(false);
     }
   };
+
+  const { notam: arrivalNotams, total: arrTotal, error: arrError } = useAirportNotams(arr);
+  console.log("Arrival NOTAMs:", arrivalNotams, arrTotal, arrError);
+  const { notam: departureNotams, total: depTotal, error: depError } = useAirportNotams(dep);
+  console.log("Departure NOTAMs:", departureNotams, depTotal, depError);
 
   const handleFetch = async () => {
     await Promise.all([fetchMetar(), fetchTaf(), fetchAirport()]);
@@ -174,7 +191,7 @@ export default function Home() {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Typography variant="h4" gutterBottom>
-        Route Weather Checker
+        Marshal Protocol - Weather & NOTAMs
       </Typography>
 
       <Paper sx={{ p: 3, mb: 4 }}>
@@ -340,6 +357,35 @@ export default function Home() {
               </React.Fragment>
             ))}
           </List>
+
+          <Box display="grid" gridTemplateColumns="1fr 1fr" gap={2} mt={3}>
+            {/* Departure */}
+            <Card>
+              <CardContent>
+                <Typography variant="h6">Departure NOTAMs ({depTotal})</Typography>
+                {depError && <Typography color="error">Error: {depError}</Typography>}
+                {Array.isArray(departureNotams) && departureNotams.map((n, i) => (
+                  <Box key={i} sx={{ mb: 1, p: 1, bgcolor: "grey.100", borderRadius: 1 }}>
+                    <Typography variant="body2" fontWeight="bold">{n.id}</Typography>
+                    <Typography variant="caption">{n.description}</Typography>
+                  </Box>
+                ))}
+              </CardContent>
+            </Card>
+            {/* Arrival */}
+            <Card>
+              <CardContent>
+                <Typography variant="h6">Arrival NOTAMs ({arrTotal})</Typography>
+                {arrError && <Typography color="error">Error: {arrError}</Typography>}
+                {Array.isArray(arrivalNotams) && arrivalNotams.map((n, i) => (
+                  <Box key={i} sx={{ mb: 1, p: 1, bgcolor: "grey.100", borderRadius: 1 }}>
+                    <Typography variant="body2" fontWeight="bold">{n.id}</Typography>
+                    <Typography variant="caption">{n.description}</Typography>
+                  </Box>
+                ))}
+              </CardContent>
+            </Card>
+          </Box>
         </Box>
       )}
     </Container>
