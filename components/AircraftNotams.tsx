@@ -136,7 +136,7 @@ export default function AircraftNotams({
 
   useEffect(() => {
 
-    const { enrouteNotams } = getEnrouteNotams(dep, arr, airspace, notam);
+    const { enrouteNotams } = getEnrouteNotams(dep, arr, airspaces, notams);
     setEnrouteNotams(enrouteNotams);
   }, [dep, arr, airspaces, notams]);
 
