@@ -24,7 +24,7 @@ import { useAirportNotams } from '@/lib/hooks/airport/getAirportNotams';
 import { useAirportMetar } from '@/lib/hooks/airport/getAirportMetar';
 import { useAirportTaf } from '@/lib/hooks/airport/getAirportTaf';
 import { useAirportData } from '@/lib/hooks/airport/getAirportData';
-import { AirportDataBlock } from '@/components/AirportData';
+import { AirportDataBlock } from '@/components/Airport/AirportDataBlock';
 
 export default function Airport() {
   const [airport, setAirport] = useState('');

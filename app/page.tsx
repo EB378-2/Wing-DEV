@@ -19,12 +19,14 @@ import {
   Card,
   CardContent
 } from '@mui/material';
-import { ExpandMore, ExpandLess } from '@mui/icons-material';
+import { ExpandMore, ExpandLess, Air } from '@mui/icons-material';
 import { useAirportNotams } from '@/lib/hooks/airport/getAirportNotams';
 import { useAirportMetar } from '@/lib/hooks/airport/getAirportMetar';
 import { useAirportTaf } from '@/lib/hooks/airport/getAirportTaf';
 import { useAirportData } from '@/lib/hooks/airport/getAirportData';
-import { AirportDataBlock } from '@/components/AirportData';
+import { AirportDataBlock } from '@/components/Airport/AirportDataBlock';
+import { NOTAMBlock } from '@/components/Airport/AirportNotamBlock';
+import { AirportSearch } from '@/components/Airport/AirportSearch';
 
 export default function Airport() {
   const [airport, setAirport] = useState('');
@@ -146,16 +148,9 @@ export default function Airport() {
             Marshal Protocol
         </Typography>
         
-
-        {/* Form (DEP/ARR => Fetch) */}
-        <Box display="flex" gap={2} flexWrap="wrap" alignItems="center" justifyContent={"center"}>
-          <TextField
-            label="Airport ICAO"
-            value={airport}
-            onChange={(e) => setAirport(e.target.value.toUpperCase())}
-            size="small"
-          />
-        </Box>
+        <AirportSearch 
+          onAirportSelect={(selectedAirport) => setAirport(selectedAirport ? selectedAirport.icaoCode : '')}
+        />
 
       {loading && (
         <Box display="flex" justifyContent="center" my={4}>
@@ -230,22 +225,7 @@ export default function Airport() {
           </List>
           <AirportDataBlock data={airportData} />
 
-          <Box display="grid" gridTemplateColumns="1fr" gap={2} mt={3}>
-            {/* Airport Notams */}
-            <Card>
-              <CardContent>
-                <Typography variant="h6"> Airport NOTAMs ({airportNotamsTotal})</Typography>
-                {airportNotamsError && <Typography color="error">Error: {airportNotamsError}</Typography>}
-                {Array.isArray(airportNotams) && airportNotams.map((n) => (
-                  <Box key={n.id} sx={{ mb: 1, p: 1, bgcolor: "grey.100", borderRadius: 1 }}>
-                    <Typography variant="body2" fontWeight="bold">{n.title}</Typography>
-                    <Typography variant="caption">{n.description}</Typography><br/>
-                    <Typography variant="caption">{n.effectiveDate} - {n.expiryDate}</Typography>
-                  </Box>
-                ))}
-              </CardContent>
-            </Card>
-          </Box>
+          <NOTAMBlock notams={airportNotams} total={airportNotamsTotal} icaoCode={airport.toUpperCase()} loading={airportNotamsLoading} error={airportNotamsError} />
         </Box>
       )}
       </Paper>
