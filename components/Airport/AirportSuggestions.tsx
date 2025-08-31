@@ -78,7 +78,7 @@ export const AirportSuggestions: React.FC<AirportSuggestionsProps> = ({
     return (
       <Paper sx={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 1000, p: 2, mt: 0.5 }}>
         <Typography variant="body2" color="text.secondary" textAlign="center">
-          No airports found matching "{searchTerm}"
+          No airports found matching &quot;{searchTerm}&quot;
         </Typography>
       </Paper>
     );
