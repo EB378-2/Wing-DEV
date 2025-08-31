@@ -4,25 +4,17 @@ const API_KEY = process.env.OPENAIP_API_KEY || '';
 
 export async function GET(request: Request) {
   try {
-    // Extract query parameters from the request URL
     const { searchParams } = new URL(request.url);
-    const dep = searchParams.get('dep');
-    const arr = searchParams.get('arr');
+    const icao = searchParams.get('icao')?.toUpperCase();
 
-    if (!dep || !arr) {
+    if (!icao) {
       return NextResponse.json(
-        { error: 'Missing required query parameters: dep and arr' },
+        { error: 'Missing required query parameter: icao' },
         { status: 400 }
       );
     }
 
-    // Construct the search query string; here I'm assuming you want to search both airports somehow
-    // For demonstration, let's fetch airports matching either dep or arr codes separately and combine
-    // Or if you want to fetch only departure or arrival, adjust accordingly
-
-    // For example, to fetch airports matching either dep or arr:
-    const url = `https://api.core.openaip.net/api/airports?searchOptLwc=true&search=${dep},${arr}&country=FI`;
-
+    const url = `https://api.core.openaip.net/api/airports?search=${icao}`;
     const res = await fetch(url, {
       headers: {
         'Accept': 'application/json',
@@ -31,13 +23,20 @@ export async function GET(request: Request) {
     });
 
     if (!res.ok) {
-      throw new Error(`Failed to fetch airports: ${res.status} ${res.statusText}`);
+      throw new Error(`Failed to fetch airport ${icao}: ${res.status} ${res.statusText}`);
     }
 
-    const airports = await res.json();
-    console.log(airports);
+    const data = await res.json();
+    const airport = data.items?.[0] || null;
 
-    return NextResponse.json(airports);
+    if (!airport) {
+      return NextResponse.json(
+        { error: `Airport ${icao} not found` },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(airport);
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || 'Unknown error occurred' },

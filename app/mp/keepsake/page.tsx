@@ -23,10 +23,11 @@ import { ExpandMore, ExpandLess } from '@mui/icons-material';
 import { useAirportNotams } from '@/lib/hooks/airport/getAirportNotams';
 import { useAirportMetar } from '@/lib/hooks/airport/getAirportMetar';
 import { useAirportTaf } from '@/lib/hooks/airport/getAirportTaf';
+import { useAirportData } from '@/lib/hooks/airport/getAirportData';
+import { AirportDataBlock } from '@/components/AirportData';
 
 export default function Airport() {
   const [airport, setAirport] = useState('');
-  const [airports, setAirports] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [expandedStations, setExpandedStations] = useState<Record<string, boolean>>({});
 
@@ -37,26 +38,14 @@ export default function Airport() {
     }));
   };
 
-  const fetchAirport = async () => {
-    if (!airport) return;
-    setLoading(true);
-    try {
-      const resp = await fetch(`/api/openAip/airports?dep=${airport}&arr=${airport}`);
-      const data = await resp.json();
-      setAirports(data);
-    } catch (err) {
-      console.error('Error fetching airport:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const { notams: airportNotams, total: airportNotamsTotal, error: airportNotamsError, loading: airportNotamsLoading } = useAirportNotams(airport);
   console.log("Airport NOTAMs:", airportNotams, airportNotamsTotal, airportNotamsError, airportNotamsLoading);
   const { metar: airportMetar, error: airportMetarError, loading: airportMetarLoading } = useAirportMetar(airport);
   console.log("Airport Metar:", airportMetar, airportMetarError, airportMetarLoading);
   const { taf: airportTaf, error: airportTafError, loading: airportTafLoading } = useAirportTaf(airport);
   console.log("Airport Taf:", airportTaf, airportTafError, airportTafLoading);
+  const { airport: airportData, error: airportDataError, loading: airportDataLoading } = useAirportData(airport);
+  console.log("Airport Data:", airportData, airportDataError, airportDataLoading);
   
 
   const renderTafForecast = (forecast: any[] | undefined) => {
@@ -174,7 +163,7 @@ export default function Airport() {
         </Box>
       )}
 
-      {!loading && airportMetar && airportTaf && (
+      {!loading && airport && (
         <Box mt={4}>
           {/* Departure & Arrival Section */}
           
@@ -239,6 +228,7 @@ export default function Airport() {
               </React.Fragment>
             ))}
           </List>
+          <AirportDataBlock data={airportData} />
 
           <Box display="grid" gridTemplateColumns="1fr" gap={2} mt={3}>
             {/* Airport Notams */}
