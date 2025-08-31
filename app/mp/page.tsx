@@ -19,17 +19,8 @@ import {
   Card,
   CardContent
 } from '@mui/material';
-import Grid from '@mui/material/Grid';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
 import { useAirportNotams } from '@/lib/hooks/airport/getAirportNotams';
-
-interface FormattedNOTAM {
-  id: string;
-  title: string;
-  description: string;
-  location: string;
-  effectiveDate: string;
-}
 
 export default function Home() {
   const [dep, setDep] = useState('');
@@ -189,12 +180,14 @@ export default function Home() {
   };
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Typography variant="h4" gutterBottom align="center">
-        Marshal Protocol
-      </Typography>
+    <Container>
+        <Paper sx={{ p: 3, mb: 4 }}>
+            {/* Title */}
+        <Typography variant="h4" gutterBottom align="center">
+            Marshal Protocol
+        </Typography>
 
-      <Paper sx={{ p: 3, mb: 4 }}>
+        {/* Form (DEP/ARR => Fetch) */}
         <Box display="flex" gap={2} flexWrap="wrap" alignItems="center" justifyContent={"center"}>
           <TextField
             label="Departure ICAO"
@@ -217,7 +210,6 @@ export default function Home() {
             {loading ? <CircularProgress size={24} /> : 'Fetch'}
           </Button>
         </Box>
-      </Paper>
 
       {loading && (
         <Box display="flex" justifyContent="center" my={4}>
@@ -226,9 +218,8 @@ export default function Home() {
       )}
 
       {!loading && metar && taf && (
-        <Box>
+        <Box mt={4}>
           {/* Departure & Arrival Section */}
-          <Typography variant="h5" gutterBottom>Departure & Arrival</Typography>
           
           <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>METAR</Typography>
           <List>
@@ -388,6 +379,7 @@ export default function Home() {
           </Box>
         </Box>
       )}
+      </Paper>
     </Container>
   );
 }

@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 
 interface FormattedNOTAM {
@@ -19,6 +20,7 @@ export function useAirportNotams(icaoCode: string) {
   const [total, setTotal] = useState(0);
   const [notams, setNotams] = useState<FormattedNOTAM[]>([]);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!icaoCode || icaoCode.length !== 4) return;
@@ -27,6 +29,7 @@ export function useAirportNotams(icaoCode: string) {
     async function fetchNotams() {
       try {
         setError("");
+        setLoading(true);
 
         const params = new URLSearchParams({
           icao: icaoCode,
@@ -45,6 +48,7 @@ export function useAirportNotams(icaoCode: string) {
 
         setNotams(result.notams || []);
         setTotal(result.total || 0);
+        setLoading(false);
       } catch (err) {
         if (!controller.signal.aborted) {
           setError(err instanceof Error ? err.message : "Failed to fetch NOTAMs");
@@ -56,5 +60,5 @@ export function useAirportNotams(icaoCode: string) {
     return () => controller.abort();
   }, [icaoCode]);
 
-  return { notams, total, error };
+  return { notams, total, error, loading};
 }
