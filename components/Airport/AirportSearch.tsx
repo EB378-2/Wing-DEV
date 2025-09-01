@@ -1,21 +1,21 @@
-// components/AirportSearch.tsx
+// components/Airport/AirportSearch.tsx
 import React, { useState } from 'react';
 import {
   Box,
   TextField,
   CircularProgress,
-  Alert,
   IconButton,
   Typography,
   Link
 } from '@mui/material';
-import { Clear, Flight } from '@mui/icons-material';
+import { Clear } from '@mui/icons-material';
 import { useAirportSearch } from '@/lib/hooks/airport/useAirportSearch';
 import { AirportSuggestions } from './AirportSuggestions';
 import { Airport } from '@/services/airportApi';
 
 interface AirportSearchProps {
   onAirportSelect: (airport: Airport | null) => void;
+  onIcaoSelect?: (icao: string) => void;
   initialValue?: string;
   placeholder?: string;
   label?: string;
@@ -23,6 +23,7 @@ interface AirportSearchProps {
 
 export const AirportSearch: React.FC<AirportSearchProps> = ({
   onAirportSelect,
+  onIcaoSelect,
   initialValue = '',
   placeholder = "e.g., EDDM, MUC, or Munich",
   label = "Search Airport by ICAO, IATA, or Name"
@@ -39,6 +40,9 @@ export const AirportSearch: React.FC<AirportSearchProps> = ({
     selectAirport
   } = useAirportSearch();
 
+  // Safe value that's never undefined
+  const safeInputValue = inputValue || '';
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value.toUpperCase();
     setInputValue(value);
@@ -46,6 +50,12 @@ export const AirportSearch: React.FC<AirportSearchProps> = ({
     
     if (selectedAirport && value !== selectedAirport.icaoCode) {
       onAirportSelect(null);
+      // Only call onIcaoSelect if it's provided and value is not empty
+      if (onIcaoSelect && value) {
+        onIcaoSelect(value);
+      } else if (onIcaoSelect) {
+        onIcaoSelect('');
+      }
     }
   };
 
@@ -53,12 +63,20 @@ export const AirportSearch: React.FC<AirportSearchProps> = ({
     selectAirport(airport);
     setShowSuggestions(false);
     onAirportSelect(airport);
+    // Only call onIcaoSelect if it's provided
+    if (onIcaoSelect) {
+      onIcaoSelect(airport.icaoCode);
+    }
   };
 
   const handleClearSearch = () => {
     clearSearch();
     setShowSuggestions(false);
     onAirportSelect(null);
+    // Only call onIcaoSelect if it's provided
+    if (onIcaoSelect) {
+      onIcaoSelect('');
+    }
   };
 
   const handleFocus = () => {
@@ -74,7 +92,7 @@ export const AirportSearch: React.FC<AirportSearchProps> = ({
     <Box sx={{ position: 'relative', width: '100%' }}>
       <TextField
         label={label}
-        value={inputValue}
+        value={safeInputValue}
         onChange={handleInputChange}
         onFocus={handleFocus}
         onBlur={handleBlur}
@@ -84,7 +102,7 @@ export const AirportSearch: React.FC<AirportSearchProps> = ({
           endAdornment: (
             <>
               {loading && <CircularProgress size={20} />}
-              {inputValue && (
+              {safeInputValue && (
                 <IconButton size="small" onClick={handleClearSearch}>
                   <Clear />
                 </IconButton>
@@ -99,7 +117,7 @@ export const AirportSearch: React.FC<AirportSearchProps> = ({
         suggestions={suggestions}
         onSelect={handleSuggestionClick}
         visible={showSuggestions}
-        searchTerm={inputValue}
+        searchTerm={safeInputValue}
         loading={loading}
         error={error}
       />

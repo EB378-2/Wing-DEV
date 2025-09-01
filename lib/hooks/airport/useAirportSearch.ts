@@ -19,7 +19,7 @@ export const useDebounce = (value: string, delay: number) => {
 };
 
 export const useAirportSearch = () => {
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState<string>('');
   const [suggestions, setSuggestions] = useState<Airport[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

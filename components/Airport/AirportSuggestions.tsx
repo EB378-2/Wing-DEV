@@ -16,7 +16,7 @@ interface AirportSuggestionsProps {
   suggestions: Airport[];
   onSelect: (airport: Airport) => void;
   visible: boolean;
-  searchTerm: string;
+  searchTerm?: string;
   loading: boolean;
   error?: string | null;
 }
@@ -48,11 +48,13 @@ export const AirportSuggestions: React.FC<AirportSuggestionsProps> = ({
   suggestions,
   onSelect,
   visible,
-  searchTerm,
+  searchTerm = '',
   loading,
   error
 }) => {
   if (!visible) return null;
+
+  const hasValidSearchTerm = searchTerm && searchTerm.length >= 2;
 
   if (error) {
     return (
@@ -74,7 +76,7 @@ export const AirportSuggestions: React.FC<AirportSuggestionsProps> = ({
     );
   }
 
-  if (suggestions.length === 0 && searchTerm.length >= 2) {
+  if (suggestions.length === 0 && hasValidSearchTerm) {
     return (
       <Paper sx={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 1000, p: 2, mt: 0.5 }}>
         <Typography variant="body2" color="text.secondary" textAlign="center">
@@ -114,38 +116,47 @@ export const AirportSuggestions: React.FC<AirportSuggestionsProps> = ({
               <ListItemText
                 primary={
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography variant="subtitle2" fontWeight="bold">
+                    <Typography variant="subtitle2" fontWeight="bold" component="span">
                       {airport.icaoCode}
                     </Typography>
                     {airport.iataCode && (
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography variant="body2" color="text.secondary" component="span">
                         ({airport.iataCode})
                       </Typography>
                     )}
-                    <Typography variant="body2" sx={{ flex: 1 }}>
+                    <Typography variant="body2" sx={{ flex: 1 }} component="span">
                       {airport.name}
                     </Typography>
                   </Box>
                 }
                 secondary={
-                  <Box sx={{ display: 'flex', gap: 1, mt: 0.5, flexWrap: 'wrap' }}>
+                  // FIX: Use a span component instead of default p for secondary text
+                  <Box 
+                    component="span" 
+                    sx={{ display: 'flex', gap: 1, mt: 0.5, flexWrap: 'wrap' }}
+                  >
                     <Chip
                       size="small"
                       label={airportTypeMap[airport.type] || `Type ${airport.type}`}
                       variant="outlined"
+                      component="span" // Explicitly set component to span
                     />
                     <Chip
                       size="small"
                       label={airport.country}
                       variant="outlined"
+                      component="span" // Explicitly set component to span
                     />
                     <Chip
                       size="small"
                       label={`Elev: ${formatElevation(airport.elevation)}`}
                       variant="outlined"
+                      component="span" // Explicitly set component to span
                     />
                   </Box>
                 }
+                // FIX: Set the secondaryTypographyProps to use span instead of p
+                secondaryTypographyProps={{ component: 'span' }}
               />
             </ListItem>
           ))}

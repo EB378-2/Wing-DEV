@@ -1,27 +1,35 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import localFont from 'next/font/local'
+ 
+// Load the font from the public directory
+const goodTimesFont = localFont({
+  src: [
+    {
+      path: '../public/fonts/GoodTimesRg-BoldItalic.woff2',
+      weight: '700',
+      style: 'italic',
+    },
+    // You can add other font weights/styles here if available
+    // {
+    //   path: '../public/fonts/GoodTimesRg-Regular.woff2',
+    //   weight: '400',
+    //   style: 'normal',
+    // }
+  ],
+  variable: '--font-good-times', // CSS variable for optional use
+  display: 'swap', // Better performance
+})
 
 export const metadata: Metadata = {
   applicationName: "Marshall Protocol",
-
   title: {
     default: "Marshal Protocol",
     template: "Protocol",
   },
   icons: { icon: "/favicon.ico" },
   description: "Protocol for managing flight operations and weather data",
-  manifest: "/manifest.json",
+  manifest: "/pwa/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -42,10 +50,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="en" className={goodTimesFont.variable}>
+      <body>
         {children}
       </body>
     </html>
