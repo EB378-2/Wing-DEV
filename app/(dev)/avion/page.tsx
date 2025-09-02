@@ -54,7 +54,7 @@ export default function Home() {
                 The Vision, The Dream
             </Typography>
             <Typography variant="h6" gutterBottom align="center" sx={{ color: '#02b7ffff', pb: 2, fontFamily: 'var(--font-good-times), sans-serif' }}>
-                At Avion One, we envision a future where speed meets sustainability, and innovation drives performance. Join us on this exhilarating journey as we push the boundaries of what's possible in the world of racing.
+                At Avion One, we envision a future where speed meets sustainability, and innovation drives performance. Join us on this exhilarating journey as we push the boundaries of what&apos;s possible in the world of racing.
             </Typography>
         </Container>
       </Box>
