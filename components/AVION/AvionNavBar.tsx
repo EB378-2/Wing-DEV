@@ -39,7 +39,9 @@ export default function AvionNavBar() {
         textAlign: 'center', 
         background: '#000', 
         height: '100%',
-        pt: 2
+        pt: 2,
+        position: 'sticky',
+        top: 0
       }}
     >
       <Image 
@@ -79,7 +81,10 @@ export default function AvionNavBar() {
         width: '100%', 
         display: 'flex', 
         backgroundColor: '#000000',
-        py: { xs: 1, md: 0 }
+        py: { xs: 1, md: 0 },
+        zIndex: 1000,
+        position: 'sticky',
+        top: 0
       }}>
         <Container 
           maxWidth="xl" 

@@ -10,26 +10,27 @@ import AvionNavBar from '@/components/AVION/AvionNavBar';
 
 export default function Home() {
 
-
   return (
-    <>
+    <Box sx={{ backgroundColor: '#000000ff', width: '100vw', minHeight: '100vh' }}>
 
       {/* AvionNavBar */}
       <AvionNavBar />
       
       {/* AvionHero */}
-      <Box sx={{ pt: 4, pb: 4, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '60vh', backgroundImage: 'url(a1_images/image.png)', backgroundSize: '100vw',  width: '100vw', maskImage: 'linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,0.7), rgba(0,0,0,0))', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', backgroundColor: '#000000ff' }}>
-        <Container sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-            <Typography variant="h4" gutterBottom align="center" sx={{ color: '#ffffffff', pt: 2, fontFamily: 'var(--font-good-times), sans-serif' }}>
+      <Box sx={{ pt: 4, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '60vh',  width: '100vw', backgroundColor: '#000000ff' }}>
+        <div className="absolute inset-0 bg-[url(/a1_images/image.png)] bg-cover bg-center mask-t-from-20% mask-t-to-80% brightness-50 max-h-140" />
+        <Container sx={{ position: "relative", flexGrow: 1, zIndex: 10, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+            <Typography variant="h2" gutterBottom align="center" sx={{ color: '#ffffffff', pt: 2, fontFamily: 'var(--font-good-times), sans-serif' }}>
                 AVION ONE
             </Typography>
-            <Typography variant="h6" gutterBottom align="center" sx={{ color: '#02b7ffff', pb: 2, fontFamily: 'var(--font-good-times), sans-serif' }}>
+            <Typography variant="h4" gutterBottom align="center" sx={{ color: '#02b7ffff', pb: 2, fontFamily: 'var(--font-good-times), sans-serif', textDecoration: 'outline' }}>
                 DEFY GRAVITY. REDEFINE SPEED.
             </Typography>
         </Container>
       </Box>
+      
 
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#ea0000ff', width: '100vw', minHeight: '10vh' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#ea0000ff', width: '100vw', minHeight: '15vh' }}>
         Sponsors
       </Box>
       
@@ -75,6 +76,6 @@ export default function Home() {
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#ea0000ff', width: '100vw', minHeight: '10vh' }}>
         Footer
       </Box>
-    </>
+    </Box>
   );
 }
