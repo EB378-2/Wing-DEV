@@ -7,6 +7,7 @@ import {
     Typography, 
 } from '@mui/material';
 import AvionNavBar from '@/components/AVION/AvionNavBar';
+import SponsorCarousel from '@/components/AVION/SponsorBar';
 
 export default function Home() {
 
@@ -17,8 +18,8 @@ export default function Home() {
       <AvionNavBar />
       
       {/* AvionHero */}
-      <Box sx={{ pt: 4, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '60vh',  width: '100vw', backgroundColor: '#000000ff' }}>
-        <div className="absolute inset-0 bg-[url(/a1_images/image.png)] bg-cover bg-center mask-t-from-20% mask-t-to-80% brightness-50 max-h-140" />
+      <Box sx={{ pt: 4, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '67vh',  width: '100vw', backgroundColor: '#000000ff' }}>
+        <div className="absolute inset-0 bg-[url(/a1_images/image.png)] bg-cover bg-center mask-t-from-20% mask-t-to-80% brightness-50 max-h-[80vh] w-[100vw]" />
         <Container sx={{ position: "relative", flexGrow: 1, zIndex: 10, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
             <Typography variant="h2" gutterBottom align="center" sx={{ color: '#ffffffff', pt: 2, fontFamily: 'var(--font-good-times), sans-serif' }}>
                 AVION ONE
@@ -30,9 +31,15 @@ export default function Home() {
       </Box>
       
 
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#ea0000ff', width: '100vw', minHeight: '15vh' }}>
-        Sponsors
-      </Box>
+      <SponsorCarousel
+        speed={50} // adjust to scroll faster or slower
+        sponsors={[
+          { id: '1', name: 'Company One', logo: '/logos/company-one.svg', url: 'https://company-one.com' },
+          { id: '2', name: 'Company Two', logo: '/logos/company-two.svg', url: 'https://company-two.com' },
+          { id: '3', name: 'Company Three', logo: '/logos/company-three.svg', url: 'https://company-three.com' },
+        ]}
+      />
+
       
       {/* The New Era of Racing */}
       <Box sx={{ pt: 4, pb: 4, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '60vh', backgroundColor: '#ffffffff', width: '100vw' }}>
