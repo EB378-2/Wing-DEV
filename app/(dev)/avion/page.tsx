@@ -30,15 +30,8 @@ export default function Home() {
         </Container>
       </Box>
       
-
-      <SponsorCarousel
-        speed={50} // adjust to scroll faster or slower
-        sponsors={[
-          { id: '1', name: 'Company One', logo: '/logos/company-one.svg', url: 'https://company-one.com' },
-          { id: '2', name: 'Company Two', logo: '/logos/company-two.svg', url: 'https://company-two.com' },
-          { id: '3', name: 'Company Three', logo: '/logos/company-three.svg', url: 'https://company-three.com' },
-        ]}
-      />
+      {/* Sponor Carousel */}
+      <SponsorCarousel/>
 
       
       {/* The New Era of Racing */}
