@@ -16,7 +16,6 @@ import { Airport } from '@/services/airportApi';
 interface AirportSearchProps {
   onAirportSelect: (airport: Airport | null) => void;
   onIcaoSelect?: (icao: string) => void;
-  initialValue?: string;
   placeholder?: string;
   label?: string;
 }
@@ -24,7 +23,6 @@ interface AirportSearchProps {
 export const AirportSearch: React.FC<AirportSearchProps> = ({
   onAirportSelect,
   onIcaoSelect,
-  initialValue = '',
   placeholder = "e.g., EDDM, MUC, or Munich",
   label = "Search Airport by ICAO, IATA, or Name"
 }) => {
@@ -121,15 +119,6 @@ export const AirportSearch: React.FC<AirportSearchProps> = ({
         loading={loading}
         error={error}
       />
-
-      {selectedAirport && (
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
-          Data provided by{' '}
-          <Link href="https://www.openaip.net" target="_blank" rel="noopener">
-            OpenAIP
-          </Link>
-        </Typography>
-      )}
     </Box>
   );
 };
