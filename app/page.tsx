@@ -16,15 +16,12 @@ export default function Home() {
       <Typography variant="h4" gutterBottom align="center">
           Welcome EAB!
       </Typography>
-      <Link href="/airport">
-        Airport
+      <Link href="/home">
+        Marshal Protocol
       </Link><br />
       <Link href="/mp">
-        MP
+        Old
       </Link><br />
-      <Link href="/avion">
-        Avion 1
-      </Link>
     </>
   );
 }
