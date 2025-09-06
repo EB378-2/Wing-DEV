@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { getEnrouteNotams } from '@/lib/hooks/getEnrouteNotams';
+import { useEffect, useState, useMemo } from 'react';
+import { getEnrouteNotams } from '@/lib/hooks/enroute/getEnrouteNotams';
 
 // Example types
 interface Airspace {
@@ -24,130 +24,93 @@ interface Notam {
   radius?: number; // NM
 }
 
-// Props
 interface AircraftNotamsProps {
   dep?: [number, number];
   arr?: [number, number];
-  airspaces?: Airspace[];
-  notams?: Notam[];
   icaoCode?: string;
   limit?: number;
 }
 
-interface FormattedNOTAM {
-  id: number;
-  title: string;
-  description: string;
-  location: string;
-  effectiveDate: string;
-  expiryDate: string;
-}
-
-
 export default function AircraftNotams({
   dep = [24.5748, 60.1905],
   arr = [22.1940, 59.2009],
-  airspaces = [],
-  notams = [],
-  icaoCode = 'EFIN', 
-  limit = 100000 
+  icaoCode = 'EFIN',
+  limit = 100000,
 }: AircraftNotamsProps) {
-  const [enrouteNotams, setEnrouteNotams] = useState<Notam[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [total, setTotal] = useState(0);
-  const [notam, setNotams] = useState<FormattedNOTAM[]>([]);
-  const [airspace, setAirspaces] = useState<Airspace[]>([]);
+  const [notams, setNotams] = useState<Notam[]>([]);
+  const [airspaces, setAirspaces] = useState<Airspace[]>([]);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-
+  // 🔹 Fetch NOTAMs + Airspaces once
   useEffect(() => {
     const controller = new AbortController();
-    
-    async function fetchNotams() {
+
+    async function fetchData() {
       try {
+        setLoading(true);
         setError('');
 
-        // Step 1: Fetch raw NOTAMs
-        const params = new URLSearchParams({
+        // NOTAMs
+        const notamParams = new URLSearchParams({
           icao: icaoCode,
           limit: limit.toString(),
         });
-
-        const response = await fetch(`/api/AutoRouter/notams?${params}`, {
+        const notamRes = await fetch(`/api/AutoRouter/notams?${notamParams}`, {
           signal: controller.signal,
         });
+        if (!notamRes.ok) throw new Error(await notamRes.text());
+        const notamResult = await notamRes.json();
+        setNotams(notamResult || []);
 
-        if (!response.ok) {
-          throw new Error(await response.text());
-        }
-
-        const result = await response.json();
-        console.log("✅ Relevant NOTAMs response:", result);
-
-        setNotams(result || []);
-        setTotal(result.total || 0);
-
+        // Airspaces
+        const airspaceRes = await fetch(`/api/openAip/airspaces`, {
+          signal: controller.signal,
+        });
+        if (!airspaceRes.ok) throw new Error(await airspaceRes.text());
+        const airspaceResult = await airspaceRes.json();
+        console.log("Fetched Airspaces:", airspaceResult);
+        setAirspaces(airspaceResult || []);
       } catch (err) {
         if (!controller.signal.aborted) {
-          setError(
-            err instanceof Error ? err.message : 'Failed to fetch NOTAMs'
-          );
+          setError(err instanceof Error ? err.message : 'Failed to fetch data');
         }
       } finally {
-        if (!controller.signal.aborted) {
-          console.log("Finalized NOTAM fetch");
-        }
+        if (!controller.signal.aborted) setLoading(false);
       }
     }
 
-    async function fetchAirspaces() {
-      try {
-
-        const response = await fetch(`/api/openAip/airspaces`, {
-          signal: controller.signal,
-        });
-
-        if (!response.ok) {
-          throw new Error(await response.text());
-        }
-
-        const result = await response.json();
-        console.log("✅ Relevant NOTAMs response:", result);
-
-        setAirspaces(result || []);
-
-      } catch (err) {
-        if (!controller.signal.aborted) {
-          setError(
-            err instanceof Error ? err.message : 'Failed to fetch NOTAMs'
-          );
-        }
-      } finally {
-        if (!controller.signal.aborted) {
-        }
-      }
-    }
-
-    fetchNotams();
-    fetchAirspaces();
-    console.log("Airspaces:", airspace);
+    fetchData();
     return () => controller.abort();
   }, [icaoCode, limit]);
 
-  useEffect(() => {
-
-    const { enrouteNotams } = getEnrouteNotams(dep, arr, airspaces, notams);
-    setEnrouteNotams(enrouteNotams);
+  // 🔹 Compute enroute NOTAMs ONCE per input change
+  const enrouteNotams = useMemo(() => {
+    return getEnrouteNotams(dep, arr, airspaces, notams).enrouteNotams;
+  }, [dep, arr, airspaces, notams]);
+  const enrouteAirspace = useMemo(() => {
+    return getEnrouteNotams(dep, arr, airspaces, notams).relevantAirspaces;
+  }, [dep, arr, airspaces, notams]);
+  const enrouteNotamsV2 = useMemo(() => {
+    return getEnrouteNotams(dep, arr, airspaces, notams).inAirspaceNotams;
   }, [dep, arr, airspaces, notams]);
 
-  if (loading) return <div className="p-4 text-center">Calculating enroute NOTAMs...</div>;
-  console.log("Enroute NOTAMs:", enrouteNotams);
+  if (loading) return <div className="p-4 text-center">Loading NOTAMs...</div>;
+  if (error) return <div className="p-4 text-red-500">{error}</div>;
 
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold">
-        Enroute NOTAMs ({enrouteNotams.length})
+        Enroute V2 NOTAMs ({enrouteNotamsV2.length})
+        Enroute Airspace ({enrouteAirspace.length})
       </h2>
+      <ul className="list-disc ml-6">
+        {enrouteNotams.map((n) => (
+          <li key={n.id}>
+            <strong>{n.title}</strong> — {n.description}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

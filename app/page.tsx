@@ -18,10 +18,7 @@ export default function Home() {
       </Typography>
       <Link href="/home">
         Marshal Protocol
-      </Link><br />
-      <Link href="/mp">
-        Old
-      </Link><br />
+      </Link>
     </>
   );
 }

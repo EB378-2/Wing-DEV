@@ -222,7 +222,7 @@ export function AirportBlock({ airport }: { airport: string }) {
               {[
                 "https://atis.efnu.fi/webcam/cam-efnu-wx1.jpg",
                 "https://atis.efnu.fi/webcam/cam-efnu-wx2.jpg",
-                "https://atis.efnu.fi/webcam/cam-efnu-wx3.jpg"
+                "https://atis.efnu.fi/webcam/cam-efnu-wx3.jpg",
               ].map((src, idx) => (
                 <Box key={idx} sx={{ width: '100%', aspectRatio: '16/9', overflow: 'hidden' }}>
                   <img
@@ -234,7 +234,56 @@ export function AirportBlock({ airport }: { airport: string }) {
               ))}
             </Box>
           )}
+          {airport === 'EFHV' && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+              <Box sx={{ width: '100%', aspectRatio: '16/9' }}>
+                <iframe
+                  title="EFNU Info"
+                  src="https://efhv.fi"
+                  style={{ width: '100%', height: '100%', border: 'none' }}
+                />
+              </Box>
 
+              {/* Webcams */}
+              {[
+                "https://www.hyik.net/webcam-image.php?image=/tuulipussi/2025/09/06/Camera1_01_20250906110111.jpg",
+                "https://www.hyik.net/webcam-image.php?image=/hallit/2025/09/06/HalliCam_00_20250906110038.jpg"
+              ].map((src, idx) => (
+                <Box key={idx} sx={{ width: '100%', aspectRatio: '16/9', overflow: 'hidden' }}>
+                  <img
+                    src={src}
+                    alt={`EFNU Webcam ${idx + 1}`}
+                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  />
+                </Box>
+              ))}
+            </Box>
+          )}
+          {airport === 'EFIK' && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+              <Box sx={{ width: '100%', aspectRatio: '16/9' }}>
+                <iframe
+                  title="EFNU Info"
+                  src="https://kiikalanlentokeskus.fi"
+                  style={{ width: '100%', height: '100%', border: 'none' }}
+                />
+              </Box>
+
+              {/* Webcams */}
+              {[
+                "https://kiikalanlentokeskus.fi/wp-content/uploads/webbikamera/Cam111_000.jpg?cache=1757145840",
+                "https://kiikalanlentokeskus.fi/wp-content/uploads/webbikamera/Cam21_000.jpg?cache=1735523760"
+              ].map((src, idx) => (
+                <Box key={idx} sx={{ width: '100%', aspectRatio: '16/9', overflow: 'hidden' }}>
+                  <img
+                    src={src}
+                    alt={`EFNU Webcam ${idx + 1}`}
+                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  />
+                </Box>
+              ))}
+            </Box>
+          )}
         </Box>
       )}
     </>

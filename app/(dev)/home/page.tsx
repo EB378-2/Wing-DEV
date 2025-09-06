@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import { AirportSearch } from '@/components/Airport/AirportSearch';
 import { AirportBlock } from '@/components/Airport/airportBlock';
+import AircraftNotams from '@/components/AircraftNotams';
 
 export default function AirportPage() {
   const [depAirport, setDepAirport] = useState('');
@@ -61,6 +62,10 @@ export default function AirportPage() {
           <AirportBlock airport={arrAirport} />
         </Grid>
       </Grid>
+
+      <AircraftNotams/>
+
+
     </Paper>
   );
 }
